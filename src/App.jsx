@@ -1,33 +1,45 @@
 import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
+  useAuth
 } from "@clerk/clerk-react";
-import HomePage from "./pages/HomePage";
+import * as Sentry from "@sentry/react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
-import toast from "react-hot-toast";
-import * as Sentry from "@sentry/react";
+import CallPage from "./pages/CallPage";
+import HomePage from "./pages/HomePage";
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 export default function App() {
+  const { isSignedIn , isLoaded } = useAuth();
+
+  if (!isLoaded) {
+    return null;
+  }
+
   return (
     <>
-    <button onClick={()=>toast.success("Hello")}> success </button>
-      <SignedIn>
-        <SentryRoutes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/auth" element={<Navigate to={"/"} replace />} />
-        </SentryRoutes>
-      </SignedIn>
-      <SignedOut>
-        <SentryRoutes>
-          <Route path="/auth" element={<AuthPage/>} />
-          <Route path="*" element={<Navigate to={"/auth"} replace />} />
-        </SentryRoutes>
-      </SignedOut>
+      <SentryRoutes>
+        <Route path="/" element={isSignedIn ? <HomePage />:<Navigate to={"/auth"} replace />} />
+        <Route path="/auth" element={!isSignedIn? <AuthPage />:<Navigate to={"/"} replace />} />
+        <Route path="/call/:id" element={isSignedIn ? <CallPage/>:<Navigate to={"/auth"} replace />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="*" element={isSignedIn ? <Navigate to={"/"} replace />:<Navigate to={"/auth"} replace />} />
+      </SentryRoutes>
     </>
   );
 }
+
+// basic version of routing
+
+//  <SignedIn>
+//         <SentryRoutes>
+//           <Route path="/" element={<HomePage />} />
+//           <Route path="/auth" element={<Navigate to={"/"} replace />} />
+//         </SentryRoutes>
+//       </SignedIn>
+//       <SignedOut>
+//         <SentryRoutes>
+//           <Route path="/auth" element={<AuthPage/>} />
+//           <Route path="*" element={<Navigate to={"/auth"} replace />} />
+//         </SentryRoutes>
+//       </SignedOut>

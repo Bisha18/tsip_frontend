@@ -2,10 +2,11 @@ import { UserButton } from '@clerk/clerk-react'
 import React from 'react'
 
 const HomePage = () => {
+  const {chatClient , error , isLoading} = useStreamChat();
   return (
-    <div>
+    <div className='bg-red-500 h-screen w-screen flex justify-center items-center'>
       <UserButton/>
-      HomePage
+      
     </div>
   )
 }
